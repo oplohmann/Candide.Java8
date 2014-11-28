@@ -1,4 +1,4 @@
-package org.objectscape.candide.util;
+package org.objectscape.candide.util.values;
 
 /**
  * Created by Oliver Plohmann on 27.11.2014.

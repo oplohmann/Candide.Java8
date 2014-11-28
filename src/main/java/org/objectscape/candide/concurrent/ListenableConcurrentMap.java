@@ -17,9 +17,9 @@
 
 package org.objectscape.candide.concurrent;
 
-import org.objectscape.candide.util.ImmutableEntry;
-import org.objectscape.candide.util.ImmutableList;
-import org.objectscape.candide.util.ImmutableSet;
+import org.objectscape.candide.util.immutable.ImmutableEntry;
+import org.objectscape.candide.util.immutable.ImmutableList;
+import org.objectscape.candide.util.immutable.ImmutableSet;
 
 import java.util.Collection;
 import java.util.Map;

@@ -17,7 +17,7 @@
 
 package org.objectscape.candide.concurrent;
 
-import org.objectscape.candide.util.ImmutableList;
+import org.objectscape.candide.util.immutable.ImmutableList;
 
 /**
  * Defines a callback event that is passed on to the callback lambda in case

@@ -1,4 +1,4 @@
-package org.objectscape.candide.util;
+package org.objectscape.candide.util.immutable;
 
 /**
  * Created with IntelliJ IDEA.

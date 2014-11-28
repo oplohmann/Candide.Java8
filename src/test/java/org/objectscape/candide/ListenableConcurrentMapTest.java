@@ -19,7 +19,7 @@ package org.objectscape.candide;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.objectscape.candide.concurrent.*;
-import org.objectscape.candide.util.ImmutableList;
+import org.objectscape.candide.util.immutable.ImmutableList;
 import org.objectscape.candide.util.ListUtils;
 
 import java.util.ArrayList;

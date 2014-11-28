@@ -16,6 +16,9 @@
  */
 package org.objectscape.candide.util;
 
+import org.objectscape.candide.util.immutable.ImmutableList;
+import org.objectscape.candide.util.immutable.ImmutableSet;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

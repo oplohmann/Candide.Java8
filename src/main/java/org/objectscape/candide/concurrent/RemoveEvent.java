@@ -17,7 +17,7 @@
 
 package org.objectscape.candide.concurrent;
 
-import org.objectscape.candide.util.ImmutableList;
+import org.objectscape.candide.util.immutable.ImmutableList;
 
 /**
  *

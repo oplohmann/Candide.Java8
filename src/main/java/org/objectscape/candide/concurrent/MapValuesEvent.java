@@ -18,7 +18,7 @@
 package org.objectscape.candide.concurrent;
 
 import org.objectscape.candide.stm.MapEvent;
-import org.objectscape.candide.util.ImmutableList;
+import org.objectscape.candide.util.immutable.ImmutableList;
 
 public class MapValuesEvent<V> extends MapEvent<V> {
 

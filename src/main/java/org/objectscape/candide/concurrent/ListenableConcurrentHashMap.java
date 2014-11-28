@@ -18,6 +18,9 @@
 package org.objectscape.candide.concurrent;
 
 import org.objectscape.candide.util.*;
+import org.objectscape.candide.util.immutable.ImmutableEntry;
+import org.objectscape.candide.util.immutable.ImmutableList;
+import org.objectscape.candide.util.immutable.ImmutableSet;
 
 import java.io.Serializable;
 import java.util.*;

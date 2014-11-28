@@ -21,8 +21,8 @@ import org.junit.Test;
 import org.objectscape.candide.common.SendEvent;
 import org.objectscape.candide.concurrent.ListenableConcurrentValue;
 import org.objectscape.candide.concurrent.SetEvent;
-import org.objectscape.candide.util.BooleanValue;
-import org.objectscape.candide.util.IntValue;
+import org.objectscape.candide.util.values.BooleanValue;
+import org.objectscape.candide.util.values.IntValue;
 
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
