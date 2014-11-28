@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.objectscape.util.scalastm;
+package org.objectscape.candide.util.scalastm;
 
 import java.util.Map;
 import java.util.Set;

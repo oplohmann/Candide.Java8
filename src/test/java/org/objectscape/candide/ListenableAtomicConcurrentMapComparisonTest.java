@@ -23,7 +23,7 @@ import org.objectscape.candide.concurrent.ListenableConcurrentHashMap;
 import org.objectscape.candide.concurrent.ListenableConcurrentMap;
 import org.objectscape.candide.stm.ListenableAtomicMap;
 import org.objectscape.candide.util.values.IntValue;
-import org.objectscape.util.scalastm.AtomicUtils;
+import org.objectscape.candide.util.scalastm.AtomicUtils;
 
 import java.util.ArrayList;
 import java.util.List;

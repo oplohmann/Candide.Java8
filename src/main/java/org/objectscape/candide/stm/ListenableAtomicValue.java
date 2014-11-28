@@ -22,7 +22,7 @@ import org.objectscape.candide.common.SendListener;
 import org.objectscape.candide.concurrent.ListenerValue;
 import org.objectscape.candide.concurrent.SetEvent;
 import org.objectscape.candide.concurrent.SetListener;
-import org.objectscape.util.scalastm.AtomicUtils;
+import org.objectscape.candide.util.scalastm.AtomicUtils;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
