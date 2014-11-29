@@ -21,13 +21,12 @@ import org.junit.Test;
 import org.objectscape.candide.stm.*;
 import org.objectscape.candide.util.values.BooleanValue;
 import org.objectscape.candide.util.values.IntValue;
-import org.objectscape.candide.util.scalastm.AtomicUtils;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class ListenableAtomicMapTest extends AbstractTest implements AtomicUtils {
+public class ListenableAtomicMapTest extends AbstractTest {
 
     @Test
     public void putRemoveSizeIsEmpty()

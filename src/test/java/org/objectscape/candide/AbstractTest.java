@@ -18,6 +18,7 @@
 package org.objectscape.candide;
 
 import org.junit.After;
+import org.objectscape.candide.util.scalastm.AtomicUtils;
 
 /**
  * Abstract class with common functionality useful for all test classes.
@@ -25,7 +26,7 @@ import org.junit.After;
  * @author <a href="http://www.objectscape.org/">Oliver Plohmann</a>
  *
  */
-public abstract class AbstractTest
+public abstract class AbstractTest implements AtomicUtils
 {
 
 }
