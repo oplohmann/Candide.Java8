@@ -28,30 +28,28 @@ import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
 /**
- * Result of running <code>putConcurrentListenableMap</code>:
+ * Result of running <code>incrementConcurrentValue</code>:
  *
- * time for 2 threads: 20098 ms
- * time for 4 threads: 25256 ms
- * time for 6 threads: 24958 ms
- * time for 8 threads: 25239 ms
- * time for 10 threads: 25004 ms
- * time for 12 threads: 24813 ms
- * time for 14 threads: 24844 ms
- * time for 16 threads: 24785 ms
+ * time for 2 threads concurrent: 20435 ms
+ * time for 4 threads concurrent: 27777 ms
+ * time for 6 threads concurrent: 27737 ms
+ * time for 8 threads concurrent: 27702 ms
+ * time for 10 threads concurrent: 27502 ms
+ * time for 12 threads concurrent: 27651 ms
+ * time for 14 threads concurrent: 27621 ms
+ * time for 16 threads concurrent: 27753 ms
  *
- * Result of running <code>putputListenableAtomicMap</code>:
+ * Result of running <code>incrementAtomicValue</code>:
  *
- * time for 2 threads scalastm: 5031
- * time for 4 threads scalastm: 5333
- * time for 6 threads scalastm: 5836
- * time for 8 threads scalastm: 6053
- * time for 10 threads scalastm: 7067
- * time for 12 threads scalastm: 8379
- * time for 14 threads scalastm: 9706
- * time for 16 threads scalastm: 8043
+ * time for 2 threads scalastm: 3593 ms
+ * time for 4 threads scalastm: 4102 ms
+ * time for 6 threads scalastm: 4649 ms
+ * time for 8 threads scalastm: 5336 ms
+ * time for 10 threads scalastm: 7371 ms
+ * time for 12 threads scalastm: 5608 ms
+ * time for 14 threads scalastm: 5983 ms
+ * time for 16 threads scalastm: 7793 ms
  *
- * So the solution using ScalaSTM scalastm blocks beats the solution using ReentrantReadWriteLock
- * by a factor between 2,5 and 4,7. Both solutions seem to scale well.
  */
 
 @Ignore // not part of regression tests - for performance comparison only
