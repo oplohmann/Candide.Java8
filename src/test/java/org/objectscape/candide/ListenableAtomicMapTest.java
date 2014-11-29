@@ -311,35 +311,30 @@ public class ListenableAtomicMapTest extends AbstractTest implements AtomicUtils
 
 
     @Test
-    public void putRollback() {
+    public void putRollback()
+    {
         BooleanValue listener1Called = new BooleanValue();
         BooleanValue listener2Called = new BooleanValue();
 
         boolean exceptionOccurred = false;
 
-        ListenableAtomicMap<String, Integer>[] map = new ListenableAtomicMap[1];
-        ListenableAtomicMap<String, Integer>[] map2 = new ListenableAtomicMap[1];
-
-        atomic(() ->
-                {
-                    map[0] = new ListenableAtomicMap<>("map1");
-                    map2[0] = new ListenableAtomicMap<>("map1");
-                });
+        ListenableAtomicMap<String, Integer> map = new ListenableAtomicMap<>("map1");
+        ListenableAtomicMap<String, Integer> map2 = new ListenableAtomicMap<>("map2");
 
         try {
             atomic(() ->
                     {
-                        map[0].addListener("1", (PutEvent<Integer> event) -> {
+                        map.addListener("1", (PutEvent<Integer> event) -> {
                             listener1Called.set(true);
                         });
 
-                        map[0].put("1", 1);
+                        map.put("1", 1);
 
-                        map2[0].addListener("2", (PutEvent<Integer> event) -> {
+                        map2.addListener("2", (PutEvent<Integer> event) -> {
                             listener2Called.set(true);
                         });
 
-                        map2[0].put("2", 2);
+                        map2.put("2", 2);
 
                         int i = 1 / 0;
                         System.out.println("we won't get here");
@@ -348,6 +343,9 @@ public class ListenableAtomicMapTest extends AbstractTest implements AtomicUtils
             exceptionOccurred = true;
         }
 
+        Assert.assertTrue(map.isEmpty());
+        Assert.assertTrue(map2.isEmpty());
+
         Assert.assertFalse(listener1Called.get());
         Assert.assertFalse(listener2Called.get());
 
@@ -355,50 +353,46 @@ public class ListenableAtomicMapTest extends AbstractTest implements AtomicUtils
 
         atomic(() ->
                 {
-                    Assert.assertNull(map[0].get("1"));
-                    Assert.assertNull(map2[0].get("1"));
+                    Assert.assertNull(map.get("1"));
+                    Assert.assertNull(map2.get("1"));
                 });
     }
 
     @Test
-    public void putRemoveSend() {
+    public void putRemoveSend()
+    {
         BooleanValue listener1Called = new BooleanValue();
         BooleanValue listener2Called = new BooleanValue();
         BooleanValue sendListenerCalled = new BooleanValue();
 
         boolean exceptionOccurred = false;
 
-        ListenableAtomicMap<String, Integer>[] map = new ListenableAtomicMap[1];
-        ListenableAtomicMap<String, Integer>[] map2 = new ListenableAtomicMap[1];
+        ListenableAtomicMap<String, Integer> map = new ListenableAtomicMap<>("map1");
+        ListenableAtomicMap<String, Integer> map2 = new ListenableAtomicMap<>("map2");
 
-        atomic(() ->
-                {
-                    map[0] = new ListenableAtomicMap<>("map1");
-                    map2[0] = new ListenableAtomicMap<>("map2");
-                });
 
         try {
             atomic(() ->
                     {
-                        map[0].addListener("1", (PutEvent<Integer> event) -> {
+                        map.addListener("1", (PutEvent<Integer> event) -> {
                             listener1Called.set(true);
                         });
 
-                        map[0].put("1", 1);
+                        map.put("1", 1);
 
-                        map2[0].addListener("2", (PutEvent<Integer> event) -> {
+                        map2.addListener("2", (PutEvent<Integer> event) -> {
                             listener2Called.set(true);
                         });
 
-                        map2[0].put("2", map[0].get("1"));
+                        map2.put("2", map.get("1"));
 
-                        map[0].remove("1");
+                        map.remove("1");
 
-                        map2[0].addListener("2", (SendEvent<Integer> event) -> {
+                        map2.addListener("2", (SendEvent<Integer> event) -> {
                             sendListenerCalled.set(true);
                         });
 
-                        map2[0].send("2");
+                        map2.send("2");
                     });
         } catch (Exception e) {
             exceptionOccurred = true;
@@ -412,8 +406,8 @@ public class ListenableAtomicMapTest extends AbstractTest implements AtomicUtils
 
         atomic(() ->
                 {
-                    Assert.assertNull(map[0].get("1"));
-                    Assert.assertEquals(new Integer(1), map2[0].get("2"));
+                    Assert.assertNull(map.get("1"));
+                    Assert.assertEquals(new Integer(1), map2.get("2"));
                 });
     }
 
@@ -424,14 +418,8 @@ public class ListenableAtomicMapTest extends AbstractTest implements AtomicUtils
 
         boolean exceptionOccurred = false;
 
-        ListenableAtomicMap<String, Integer>[] map = new ListenableAtomicMap[1];
-        ListenableAtomicMap<String, Integer>[] map2 = new ListenableAtomicMap[1];
-
-        atomic(() ->
-                {
-                    map[0] = new ListenableAtomicMap<>("map1");
-                    map2[0] = new ListenableAtomicMap<>("map2");
-                });
+        ListenableAtomicMap<String, Integer> map = new ListenableAtomicMap<>("map1");
+        ListenableAtomicMap<String, Integer> map2 = new ListenableAtomicMap<>("map2");
 
         try {
             atomic(() ->
@@ -440,24 +428,24 @@ public class ListenableAtomicMapTest extends AbstractTest implements AtomicUtils
                             listener1Called.set(true);
                         };
 
-                        map[0].addListener("1", listener);
-                        map[0].put("1", 1);
+                        map.addListener("1", listener);
+                        map.put("1", 1);
 
                         PutListener<Integer> listener2 = (PutEvent<Integer> event) -> {
                             listener2Called.set(true);
                         };
 
-                        map2[0].addListener("2", listener2);
-                        map2[0].put("2", map[0].get("1"));
+                        map2.addListener("2", listener2);
+                        map2.put("2", map.get("1"));
 
-                        map[0].remove("1");
+                        map.remove("1");
 
                         BooleanValue sendListenerCalled = new BooleanValue();
                         SendListener<Integer> sendListener = (SendEvent<Integer> event) -> {
                             sendListenerCalled.set(true);
                         };
 
-                        map2[0].send("2");
+                        map2.send("2");
 
                         int i = 1 / 0;
                         System.out.println("we won't get here");
@@ -473,8 +461,8 @@ public class ListenableAtomicMapTest extends AbstractTest implements AtomicUtils
 
         atomic(() ->
                 {
-                    Assert.assertNull(map[0].get("1"));
-                    Assert.assertNull(map2[0].get("1"));
+                    Assert.assertNull(map.get("1"));
+                    Assert.assertNull(map2.get("1"));
                 });
     }
 }
