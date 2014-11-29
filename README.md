@@ -14,21 +14,21 @@ There is also [Candide.preJava8](https://github.com/oplohmann/Candide.preJava8),
 
 #### Basics ####
 
-In the sample code below an **atomic block** is defined in lines 4-8 using the atomic method, which takes a zero-argument lambda as its argument (e.g., a Runnable). **The atomic block defines the transaction:**  
+The code in this section can also be executed from class [DemoTest](https://github.com/oplohmann/Candide.Java8/blob/master/src/test/java/org/objectscape/candide/DemoTest.java). 
+In the sample code below an **atomic block** is defined in lines 3-7 using the atomic method, which takes a zero-argument lambda as its argument (e.g., a Runnable). **The atomic block defines the transaction:**  
  
 
-	1 import org.objectscape.candide.stm.ListenableAtomicMap;
-	2 import static scala.concurrent.stm.japi.STM.atomic;
+	1 import org.objectscape.candide.stm.*;
 
-	3 ListenableAtomicMap<String, Integer> map = new ListenableAtomicMap<>();
+	2 ListenableAtomicMap<String, Integer> map = new ListenableAtomicMap<>();
 
-	4 atomic(() -> {
-    5 	if(map.containsKey("1")) {
-    6   	map.put("2", 2);
-    7   }
-	8 });
+	3 atomic(() -> {
+    4 	if(map.containsKey("1")) {
+    5   	map.put("2", 2);
+    6   }
+	7 });
 
-The atomic block in the sample code above is analogous to this "conventional" solution below:
+The atomic block in the sample code above is analogous to this "conventional" solution using a synchronized block:
 
 	Map<String, Integer> map = new HashMap<>();
         
@@ -42,15 +42,14 @@ The advantage of using STM compared to synchronized blocks/locks/semaphores/etc.
 
 **Furthermore, transactions in STM will be rolled back in case they don't terminate normally:**
 
-	import org.objectscape.candide.stm.ListenableAtomicMap;
-	import static scala.concurrent.stm.japi.STM.atomic;
+	import org.objectscape.candide.stm.*;
 
 	ListenableAtomicMap<String, Integer> map = new ListenableAtomicMap<>();
 
     try {
 		atomic(() -> {
         	map.put("1", 1);
-            int infinity = 1 / 0;	// will cause exception to be thrown!
+            int infinity = 1 / 0;	// will cause exception resulting in trx being rolled back!
 		});
 	} catch (Exception ex) {
 		System.out.println(ex.getMessage());
@@ -61,7 +60,7 @@ The advantage of using STM compared to synchronized blocks/locks/semaphores/etc.
 	});
 
 
-In the code above the actions in the atomic block will be rolled back. **Note, that the try-catch block is defined *around* the atomic block and not inside it as required by ScalaSTM.** If defined inside the atomic block, the rollback will not happen. On the console you will see this:
+In the code above the actions in the atomic block will be rolled back. **Note, that the try-catch block is defined *around* the atomic block and not inside it, which is required by ScalaSTM.** If defined inside the atomic block, the rollback will not happen. On the console you will see this as the put to the map is rolled back:
 
 
     / by zero
@@ -78,15 +77,13 @@ This is how to define a **PutListener** by supplying a *PutEvent* lambda argumen
 	import org.objectscape.candide.util.values.BooleanValue;
 	import org.objectscape.candide.util.values.IntValue;
 
-	import static scala.concurrent.stm.japi.STM.atomic;
-
 	ListenableAtomicMap<String, Integer> map = new ListenableAtomicMap<>();
 
 	BooleanValue listenerCalled = new BooleanValue(false);
     IntValue eventValue = new IntValue(0);
 
     atomic(() -> {
-        map.addListener("1", (PutEvent<Integer> event) -> { // PutEvent defined here!
+        map.addListener("1", (PutEvent<Integer> event) -> { // PutEvent defined here
             listenerCalled.set(true);
             eventValue.set(event.getValue());
         });
@@ -105,15 +102,13 @@ This is how to define a **RemoveListener** by supplying a *RemoveEvent* lambda a
 	import org.objectscape.candide.util.values.BooleanValue;
 	import org.objectscape.candide.util.values.IntValue;
 
-	import static scala.concurrent.stm.japi.STM.atomic;
-
 	ListenableAtomicMap<String, Integer> map = new ListenableAtomicMap<>();
 
     BooleanValue listenerCalled = new BooleanValue(false);
     IntValue eventValue = new IntValue(0);
 
     atomic(() -> {
-    	map.addListener("1", (RemoveEvent<Integer> event) -> { // RemoveEvent defined here!
+    	map.addListener("1", (RemoveEvent<Integer> event) -> { // RemoveEvent defined here
         	listenerCalled.set(true);
             eventValue.set(event.getValue());
 		});
@@ -134,15 +129,13 @@ This is how to define a **SendListener** by supplying a *SendEvent* lambda argum
 	import org.objectscape.candide.util.values.BooleanValue;
 	import org.objectscape.candide.util.values.IntValue;
 
-	import static scala.concurrent.stm.japi.STM.atomic;
-
 	ListenableAtomicMap<String, Integer> map = new ListenableAtomicMap<>();
 
     BooleanValue listenerCalled = new BooleanValue(false);
     IntValue eventValue = new IntValue(0);
 
     atomic(() -> {
-    	map.addListener("1", (SendEvent<Integer> event) -> { // SendEvent defined here!
+    	map.addListener("1", (SendEvent<Integer> event) -> { // SendEvent defined here
         	listenerCalled.set(true);
             eventValue.set(event.getValue());
 		});
@@ -156,6 +149,53 @@ This is how to define a **SendListener** by supplying a *SendEvent* lambda argum
     assertTrue(listenerCalled.get());
     assertEquals(1, eventValue.get());
 
-Run the test cases in subclasses of AbstractTest to understand the basic concept.
-Creating the documentation is in progress ...
-For the time being see http://www.objectscape.org/candide
+#### Asynchronously executed Listeners ####
+
+JDK8 adds [CompletableFutures](http://www.nurkiewicz.com/2013/05/java-8-definitive-guide-to.html), which make defining asynchronously executed callbacks easy:
+
+	import org.objectscape.candide.stm.*;
+	import org.objectscape.candide.util.values.BooleanValue;
+
+	import java.util.concurrent.CompletableFuture;
+	import java.util.concurrent.CountDownLatch;
+
+	BooleanValue listenerCalled = new BooleanValue();
+    CountDownLatch latch = new CountDownLatch(1);
+
+	ListenableAtomicMap<String, Integer> map = new ListenableAtomicMap<>("map");
+
+    atomic(() ->
+    {    
+        map.addListener(
+        	"1",
+            (PutEvent<Integer> event) -> {
+				CompletableFuture.runAsync(() -> {	// CompletableFuture defined here
+                	listenerCalled.set(true);
+                	latch.countDown();
+				});
+			});            
+        });
+	});
+
+	atomic(() ->
+    {
+		map.put("1", 1);
+	});
+
+	Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+    Assert.assertTrue(listenerCalled.get());
+
+
+
+----------
+
+### Listenable Concurrent Maps ###
+
+ListenableAtomicMaps are convenient in the way that they leverage the functionality provided by ScalaSTM. However, STM comes at a cost. ScalaSTM is very efficient. It beats a solution which defines 
+
+#### Basics ####
+
+----------
+
+### Test Cases ###
+Have a look at the test cases in subclasses of [AbstractTest](https://github.com/oplohmann/Candide.Java8/blob/master/src/test/java/org/objectscape/candide/AbstractTest.java) to see more sample code that is more intertwined. 
