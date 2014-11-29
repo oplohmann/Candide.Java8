@@ -28,6 +28,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.function.Function;
 
 /**
+ *
+ * All measurements done on an Intel Core2 Duo CPU E8400 3.00 GHz using JDK1.8.0_11
+ *
  * Result of running <code>incrementConcurrentValue</code>:
  *
  * time for 2 threads concurrent: 20435 ms

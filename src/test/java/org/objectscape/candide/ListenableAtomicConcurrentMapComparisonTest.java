@@ -33,6 +33,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 
 /**
+ *
+ * All measurements done on an Intel Core2 Duo CPU E8400 3.00 GHz using JDK1.8.0_11
+ *
  * Results of running <code>putConcurrentMap</code>
  *
  * time for 2 threads concurrent: 3907 ms
