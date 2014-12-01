@@ -25,6 +25,7 @@ import org.objectscape.candide.util.immutable.ImmutableSet;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.StampedLock;
 
 /**
  * 
@@ -161,7 +162,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
         private Map<K, Map<RemoveListener<V>, ListenerValue>> removeListeners = new HashMap<>();
         private Map<K, Map<SendListener<V>, ListenerValue>> sendListeners = new HashMap<>();
 
-		private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+		private StampedLock lock = new StampedLock();
 
 		@CallerMustSynchronize()
 		public int size()
@@ -176,7 +177,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 
 		public boolean containsKey(Object key)
 		{
-			lock.readLock().lock();
+            long stamp = lock.readLock();
 
 			try
 			{
@@ -184,7 +185,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 			} 
 			finally
 			{
-				lock.readLock().unlock();
+				lock.unlockRead(stamp);
 			}
 		}
 
@@ -196,7 +197,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 
 		public ImmutableList<V> get(Object key)
 		{
-			lock.readLock().lock();
+            long stamp = lock.readLock();
 
 			try
 			{
@@ -204,7 +205,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 			} 
 			finally
 			{
-				lock.readLock().unlock();
+                lock.unlockRead(stamp);
 			}
 		}
 
@@ -226,7 +227,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 
 		public ImmutableList<V> remove(Object key)
 		{
-			lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
 			try
 			{
@@ -240,7 +241,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 			} 
 			finally
 			{
-				lock.writeLock().unlock();
+				lock.unlockWrite(stamp);
 			}
 		}
 
@@ -276,8 +277,8 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 
 		public ImmutableList<V> putIfAbsent(K key, ImmutableList<V> valueList)
 		{
-			
-			lock.writeLock().lock();
+
+            long stamp = lock.writeLock();
 
 			try
 			{
@@ -292,7 +293,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 			} 
 			finally
 			{
-				lock.writeLock().unlock();
+				lock.unlockWrite(stamp);
 			}
 		}
 
@@ -304,7 +305,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 		@SuppressWarnings("unchecked") // cast enforced by Map.rempove(Object, Object) interface
 		public boolean remove(Object key, Object value)
 		{
-			lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
 			try
 			{
@@ -317,13 +318,13 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 			} 
 			finally
 			{
-				lock.writeLock().unlock();
+				lock.unlockWrite(stamp);
 			}
 		}
 
 		public boolean replace(K key, ImmutableList<V> oldValues, ImmutableList<V> newValues)
 		{
-			lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
 			try
 			{
@@ -341,14 +342,14 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 			} 
 			finally
 			{
-				lock.writeLock().unlock();
+				lock.unlockWrite(stamp);
 			}
 		
 		}
 
 		public ImmutableList<V> replace(K key, ImmutableList<V> newValues)
 		{
-			lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
 			try
 			{
@@ -365,7 +366,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 			} 
 			finally
 			{
-				lock.writeLock().unlock();
+				lock.unlockWrite(stamp);
 			}
 		}
 
@@ -428,7 +429,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 
 		public ImmutableList<V> putIfAbsentOrIfEmpty(K key, ImmutableList<V> values)
 		{
-			lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
 			try
 			{
@@ -448,7 +449,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 			} 
 			finally
 			{
-				lock.writeLock().unlock();
+				lock.unlockWrite(stamp);
 			}
 		}
 		
@@ -459,7 +460,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 
 		public ImmutableList<V> replaceSingleValue(K key, V value)
 		{
-			lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
 			try
 			{
@@ -476,13 +477,13 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 			} 
 			finally
 			{
-				lock.writeLock().unlock();
+				lock.unlockWrite(stamp);
 			}
 		}
 
         public void addListener(K key, PutListener<V> listener, boolean notifyWhenKeyPresent, ListenerValue value)
         {
-            lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
             try
             {
@@ -502,13 +503,13 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
             }
             finally
             {
-                lock.writeLock().unlock();
+                lock.unlockWrite(stamp);
             }
         }
 
         public boolean removeListener(K key, PutListener<V> listener)
         {
-            lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
             try
             {
@@ -526,13 +527,13 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
             }
             finally
             {
-                lock.writeLock().unlock();
+                lock.unlockWrite(stamp);
             }
         }
 
         public boolean removeListener(K key, RemoveListener<V> listener)
         {
-            lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
             try
             {
@@ -550,13 +551,13 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
             }
             finally
             {
-                lock.writeLock().unlock();
+                lock.unlockWrite(stamp);
             }
         }
 
 		public int send(K key)
 		{
-			lock.readLock().lock();
+            long stamp = lock.readLock();
 
             try
 			{
@@ -564,13 +565,13 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 			}
 			finally
 			{
-				lock.readLock().unlock();
+                lock.unlockRead(stamp);
 			}
 		}
 
         public boolean removeListener(K key, SendListener<V> listener)
         {
-            lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
             try
             {
@@ -588,13 +589,13 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
             }
             finally
             {
-                lock.writeLock().unlock();
+                lock.unlockWrite(stamp);
             }
         }
 
         public V getSingleValue(Object key)
         {
-            lock.readLock().lock();
+            long stamp = lock.readLock();
 
             try
             {
@@ -607,13 +608,13 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
             }
             finally
             {
-                lock.readLock().unlock();
+                lock.unlockRead(stamp);
             }
         }
 
         public void addListener(K key, RemoveListener<V> listener, ListenerValue value)
         {
-            lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
             try
             {
@@ -626,13 +627,13 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
             }
             finally
             {
-                lock.writeLock().unlock();
+                lock.unlockWrite(stamp);
             }
         }
 
         public void addListener(K key, SendListener<V> listener, boolean notifyWhenKeyPresent, ListenerValue value)
         {
-            lock.writeLock().lock();
+            long stamp = lock.writeLock();
 
             try
             {
@@ -648,7 +649,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
             }
             finally
             {
-                lock.writeLock().unlock();
+                lock.unlockWrite(stamp);
             }
         }
 
@@ -672,9 +673,11 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
     @Override
 	public int size()
 	{
-		for (MapSegment<K, V> mapSegment : mapSegments) {
-			mapSegment.lock.readLock().lock();
-		}
+        long[] stamps = new long[mapSegments.length];
+
+        for(int i = 0; i < mapSegments.length; i++) {
+            stamps[i] = mapSegments[i].lock.readLock();
+        }
 
 		long size = 0;
 
@@ -686,9 +689,9 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 		} 
 		finally
 		{
-			for (MapSegment<K, V> mapSegment : mapSegments) {
-				mapSegment.lock.readLock().unlock();
-			}
+            for(int i = 0; i < mapSegments.length; i++) {
+                mapSegments[i].lock.unlockRead(stamps[i]);
+            }
 		}
 
 		if(size > Integer.MAX_VALUE)
@@ -703,8 +706,10 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 	@Override
 	public boolean isEmpty()
 	{
-        for (MapSegment<K, V> mapSegment : mapSegments) {
-            mapSegment.lock.readLock().lock();
+        long[] stamps = new long[mapSegments.length];
+
+        for(int i = 0; i < mapSegments.length; i++) {
+            stamps[i] = mapSegments[i].lock.readLock();
         }
 
         try
@@ -718,8 +723,8 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
         }
         finally
         {
-            for (MapSegment<K, V> mapSegment : mapSegments) {
-                mapSegment.lock.readLock().unlock();
+            for(int i = 0; i < mapSegments.length; i++) {
+                mapSegments[i].lock.unlockRead(stamps[i]);
             }
         }
 	}
@@ -735,7 +740,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 	{
 		for (MapSegment<K, V> mapSegment : mapSegments)
 		{
-			mapSegment.lock.readLock().lock();
+            long stamp = mapSegment.lock.readLock();
 			
 			try
 			{
@@ -744,7 +749,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 			} 
 			finally
 			{
-				mapSegment.lock.readLock().unlock();
+				mapSegment.lock.unlockRead(stamp);
 			}
 		}
 
@@ -766,7 +771,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 	public ImmutableList<V> put(K key, ImmutableList<V> value)
 	{
 		MapSegment<K, V> mapSegment = getMapSegment(key);
-		mapSegment.lock.writeLock().lock();
+        long stamp = mapSegment.lock.writeLock();
 		
 		try
 		{
@@ -774,14 +779,14 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 		} 
 		finally
 		{
-			mapSegment.lock.writeLock().unlock();
+            mapSegment.lock.unlockWrite(stamp);
 		}
 	}
 
 	public ImmutableList<V> putSingleValue(K key, V value)
 	{
 		MapSegment<K, V> mapSegment = getMapSegment(key);
-		mapSegment.lock.writeLock().lock();
+        long stamp = mapSegment.lock.writeLock();
 		
 		try
 		{
@@ -789,7 +794,7 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 		} 
 		finally
 		{
-			mapSegment.lock.writeLock().unlock();
+			mapSegment.lock.unlockWrite(stamp);
 		}
 	}
 
@@ -802,8 +807,10 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 	@Override
 	public void putAll(Map<? extends K, ? extends ImmutableList<V>> map)
 	{
-		for(MapSegment<K, V> mapSegment : mapSegments) {
-            mapSegment.lock.writeLock().lock();
+        long[] stamps = new long[mapSegments.length];
+
+        for(int i = 0; i < mapSegments.length; i++) {
+            stamps[i] = mapSegments[i].lock.writeLock();
         }
 
         try
@@ -814,8 +821,8 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
         }
         finally
         {
-            for(MapSegment<K, V> mapSegment : mapSegments) {
-                mapSegment.lock.writeLock().unlock();
+            for(int i = 0; i < mapSegments.length; i++) {
+                mapSegments[i].lock.unlockWrite(stamps[i]);
             }
         }
 	}
@@ -823,9 +830,11 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 	@Override
 	public void clear()
 	{
-		for (MapSegment<K, V> mapSegment : mapSegments)	{
-			mapSegment.lock.writeLock().lock();
-		}
+        long[] stamps = new long[mapSegments.length];
+
+        for(int i = 0; i < mapSegments.length; i++) {
+            stamps[i] = mapSegments[i].lock.writeLock();
+        }
 
 		try
 		{
@@ -835,18 +844,20 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 		} 
 		finally
 		{
-			for (MapSegment<K, V> mapSegment : mapSegments) {
-				mapSegment.lock.writeLock().unlock();
-			}
+            for(int i = 0; i < mapSegments.length; i++) {
+                mapSegments[i].lock.unlockWrite(stamps[i]);
+            }
 		}
 	}
 
 	@Override
 	public Set<K> keySet()
 	{
-		for (MapSegment<K, V> mapSegment : mapSegments)	{
-			mapSegment.lock.readLock().lock();
-		}
+        long[] stamps = new long[mapSegments.length];
+
+        for(int i = 0; i < mapSegments.length; i++) {
+            stamps[i] = mapSegments[i].lock.readLock();
+        }
 
 		Set<K> keySet = new HashSet<>();
 
@@ -858,9 +869,9 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 		} 
 		finally
 		{
-			for (MapSegment<K, V> mapSegment : mapSegments)	{
-				mapSegment.lock.readLock().unlock();
-			}
+            for(int i = 0; i < mapSegments.length; i++) {
+                mapSegments[i].lock.unlockRead(stamps[i]);
+            }
 		}
 
 		return keySet;
@@ -869,9 +880,11 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 	@Override
 	public Collection<ImmutableList<V>> values()
 	{
-		for (MapSegment<K, V> mapSegment : mapSegments)	{
-			mapSegment.lock.readLock().lock();
-		}
+        long[] stamps = new long[mapSegments.length];
+
+        for(int i = 0; i < mapSegments.length; i++) {
+            stamps[i] = mapSegments[i].lock.readLock();
+        }
 
 		Collection<ImmutableList<V>> values = new ArrayList<>();
 
@@ -887,9 +900,9 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 		} 
 		finally
 		{
-			for (MapSegment<K, V> mapSegment : mapSegments)	{
-				mapSegment.lock.readLock().unlock();
-			}
+            for(int i = 0; i < mapSegments.length; i++) {
+                mapSegments[i].lock.unlockRead(stamps[i]);
+            }
 		}
 
 		return values;
@@ -898,9 +911,11 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 	@Override
 	public ImmutableSet<ImmutableEntry<K, ImmutableList<V>>> entrySet()
 	{
-		for (MapSegment<K, V> mapSegment : mapSegments)	{
-			mapSegment.lock.readLock().lock();
-		}
+        long[] stamps = new long[mapSegments.length];
+
+        for(int i = 0; i < mapSegments.length; i++) {
+            stamps[i] = mapSegments[i].lock.readLock();
+        }
 
         Set<ImmutableEntry<K, ImmutableList<V>>> entrySet = new HashSet<>();
 
@@ -915,8 +930,8 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
         }
 		finally
 		{
-            for (MapSegment<K, V> mapSegment : mapSegments)	{
-                mapSegment.lock.readLock().unlock();
+            for(int i = 0; i < mapSegments.length; i++) {
+                mapSegments[i].lock.unlockRead(stamps[i]);
             }
         }
 
@@ -1016,8 +1031,10 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
 
     public int clearListeners()
     {
-        for (MapSegment<K, V> mapSegment : mapSegments)	{
-            mapSegment.lock.writeLock().lock();
+        long[] stamps = new long[mapSegments.length];
+
+        for(int i = 0; i < mapSegments.length; i++) {
+            stamps[i] = mapSegments[i].lock.writeLock();
         }
 
         int listenersCount = 0;
@@ -1030,8 +1047,8 @@ public class ListenableConcurrentHashMap<K, V> implements Serializable, Listenab
         }
         finally
         {
-            for (MapSegment<K, V> mapSegment : mapSegments)	{
-                mapSegment.lock.writeLock().unlock();
+            for(int i = 0; i < mapSegments.length; i++) {
+                mapSegments[i].lock.unlockWrite(stamps[i]);
             }
         }
 
