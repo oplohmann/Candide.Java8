@@ -24,13 +24,14 @@ import org.objectscape.candide.util.CallerMustSynchronize;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.StampedLock;
 import java.util.function.Function;
 
 public class ListenableConcurrentValue<V> {
 
     protected String name = null;
     protected V value = null;
-    protected ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+    protected StampedLock lock = new StampedLock();
 
     protected Map<SetListener<V>, ListenerValue> setListeners = new HashMap<>();
     protected Map<SendListener<V>, ListenerValue> sendListeners = new HashMap<>();
@@ -57,7 +58,7 @@ public class ListenableConcurrentValue<V> {
 
     public boolean set(V expectedValue, V newValue)
     {
-        lock.writeLock().lock();
+        long stamp = lock.writeLock();
         try {
             if(value == null && expectedValue != null)
                 return false;
@@ -69,13 +70,13 @@ public class ListenableConcurrentValue<V> {
             return true;
         }
         finally {
-            lock.writeLock().unlock();
+            lock.unlockWrite(stamp);
         }
     }
 
     public boolean set(V expectedValue, Function<V, V> function)
     {
-        lock.writeLock().lock();
+        long stamp = lock.writeLock();
         try {
             if(value == null && expectedValue != null)
                 return false;
@@ -87,13 +88,13 @@ public class ListenableConcurrentValue<V> {
             return true;
         }
         finally {
-            lock.writeLock().unlock();
+            lock.unlockWrite(stamp);
         }
     }
 
     public V set(Function<V, V> function)
     {
-        lock.writeLock().lock();
+        long stamp = lock.writeLock();
         try {
             V previousValue = value;
             this.value = function.apply(value);
@@ -101,18 +102,18 @@ public class ListenableConcurrentValue<V> {
             return value;
         }
         finally {
-            lock.writeLock().unlock();
+            lock.unlockWrite(stamp);
         }
     }
 
     public V get()
     {
-        lock.readLock().lock();
+        long stamp = lock.readLock();
         try {
             return value;
         }
         finally {
-            lock.readLock().unlock();
+            lock.unlockRead(stamp);
         }
     }
 
@@ -150,18 +151,19 @@ public class ListenableConcurrentValue<V> {
 
     public V send()
     {
-        lock.readLock().lock();
+        long stamp = lock.readLock();
         try {
             notifySendListeners();
             return value;
         }
         finally {
-            lock.readLock().unlock();
+            lock.unlockRead(stamp);
         }
     }
 
-    public void addListener(SetListener<V> listener) {
-        lock.writeLock().lock();
+    public void addListener(SetListener<V> listener)
+    {
+        long stamp = lock.writeLock();
 
         try
         {
@@ -169,13 +171,13 @@ public class ListenableConcurrentValue<V> {
         }
         finally
         {
-            lock.writeLock().unlock();
+            lock.unlockWrite(stamp);
         }
     }
 
     public void addListener(SendListener<V> listener)
     {
-        lock.writeLock().lock();
+        long stamp = lock.writeLock();
 
         try
         {
@@ -183,13 +185,13 @@ public class ListenableConcurrentValue<V> {
         }
         finally
         {
-            lock.writeLock().unlock();
+            lock.unlockWrite(stamp);
         }
     }
 
     public boolean removeListener(SetListener<V> listener)
     {
-        lock.writeLock().lock();
+        long stamp = lock.writeLock();
 
         try
         {
@@ -197,13 +199,13 @@ public class ListenableConcurrentValue<V> {
         }
         finally
         {
-            lock.writeLock().unlock();
+            lock.unlockWrite(stamp);
         }
     }
 
     public boolean removeListener(SendListener<V> listener)
     {
-        lock.writeLock().lock();
+        long stamp = lock.writeLock();
 
         try
         {
@@ -211,7 +213,7 @@ public class ListenableConcurrentValue<V> {
         }
         finally
         {
-            lock.writeLock().unlock();
+            lock.unlockWrite(stamp);
         }
     }
 
