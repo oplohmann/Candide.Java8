@@ -31,27 +31,41 @@ import java.util.function.Function;
  *
  * All measurements done on an Intel Core2 Duo CPU E8400 3.00 GHz using JDK1.8.0_11
  *
- * Result of running <code>incrementConcurrentValue</code>:
+ * Result of running <code>incrementConcurrentValue</code> with ListenableConcurrentValue.lock
+ * using >>ReentrantReadWriteLock<<:
  *
- * time for 2 threads concurrent: 20435 ms
- * time for 4 threads concurrent: 27777 ms
- * time for 6 threads concurrent: 27737 ms
- * time for 8 threads concurrent: 27702 ms
- * time for 10 threads concurrent: 27502 ms
- * time for 12 threads concurrent: 27651 ms
- * time for 14 threads concurrent: 27621 ms
- * time for 16 threads concurrent: 27753 ms
+ * time for 2 threads concurrent: 17624 ms
+ * time for 4 threads concurrent: 25728 ms
+ * time for 6 threads concurrent: 25682 ms
+ * time for 8 threads concurrent: 25599 ms
+ * time for 10 threads concurrent: 25807 ms
+ * time for 12 threads concurrent: 25773 ms
+ * time for 14 threads concurrent: 25705 ms
+ * time for 16 threads concurrent: 25666 ms
+ *
+ * Result of running <code>incrementConcurrentValue</code> with ListenableConcurrentValue.lock
+ * using >>StampedLock<<:
+ *
+ time for 2 threads concurrent: 1329 ms
+ time for 4 threads concurrent: 1384 ms
+ time for 6 threads concurrent: 1438 ms
+ time for 8 threads concurrent: 1452 ms
+ time for 10 threads concurrent: 1501 ms
+ time for 12 threads concurrent: 1483 ms
+ time for 14 threads concurrent: 1361 ms
+ time for 16 threads concurrent: 1454 ms
+ *
  *
  * Result of running <code>incrementAtomicValue</code>:
  *
- * time for 2 threads scalastm: 3593 ms
- * time for 4 threads scalastm: 4102 ms
- * time for 6 threads scalastm: 4649 ms
- * time for 8 threads scalastm: 5336 ms
- * time for 10 threads scalastm: 7371 ms
- * time for 12 threads scalastm: 5608 ms
- * time for 14 threads scalastm: 5983 ms
- * time for 16 threads scalastm: 7793 ms
+ * time for 2 threads scalastm: 3675 ms
+ * time for 4 threads scalastm: 4321 ms
+ * time for 6 threads scalastm: 4230 ms
+ * time for 8 threads scalastm: 4788 ms
+ * time for 10 threads scalastm: 5571 ms
+ * time for 12 threads scalastm: 6997 ms
+ * time for 14 threads scalastm: 6707 ms
+ * time for 16 threads scalastm: 6783 ms
  *
  */
 
