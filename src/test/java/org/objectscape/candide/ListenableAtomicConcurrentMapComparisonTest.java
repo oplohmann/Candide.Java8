@@ -36,7 +36,7 @@ import java.util.concurrent.CountDownLatch;
  *
  * All measurements done on an Intel Core2 Duo CPU E8400 3.00 GHz using JDK1.8.0_11
  *
- * Results of running <code>putConcurrentMap</code>
+ * Results of running <code>putConcurrentMap</code>:
  *
  * time for 2 threads concurrent: 3907 ms
  * time for 4 threads concurrent: 7913 ms
@@ -47,7 +47,8 @@ import java.util.concurrent.CountDownLatch;
  * time for 14 threads concurrent: 27144 ms
  * time for 16 threads concurrent: 31172 ms
  *
- * Result of running <code>putConcurrentListenableMap</code>:
+ * Result of running <code>putConcurrentListenableMap</code> with ListenableConcurrentHashMap.MapSegment.lock
+ * using >>ReentrantReadWriteLock<<:
  *
  * time for 2 threads concurrent: 12311 ms
  * time for 4 threads concurrent: 24717 ms
@@ -57,6 +58,18 @@ import java.util.concurrent.CountDownLatch;
  * time for 12 threads concurrent: 75218 ms
  * time for 14 threads concurrent: 87741 ms
  * time for 16 threads concurrent: 100403 ms
+ *
+ * Result of running <code>putConcurrentListenableMap</code> with ListenableConcurrentHashMap.MapSegment.lock
+ * using >>StampedLock<<:
+ *
+ * time for 2 threads concurrent: 9646 ms
+ * time for 4 threads concurrent: 22427 ms
+ * time for 6 threads concurrent: 31823 ms
+ * time for 8 threads concurrent: 43571 ms
+ * time for 10 threads concurrent: 51593 ms
+ * time for 12 threads concurrent: 60656 ms
+ * time for 14 threads concurrent: 68415 ms
+ * time for 16 threads concurrent: 83248 ms
  *
  *  Result of running <code>putAtomicMap</code>:
  *
