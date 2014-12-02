@@ -31,7 +31,7 @@ public class ListenableConcurrentIntegerValue extends ListenableConcurrentValue<
     }
 
     public Integer incrementAndGet() {
-        long stamp = lock.writeLock();
+        lock.writeLock().lock();
         try {
             Integer previousValue = value;
             this.value = previousValue + 1;
@@ -39,13 +39,13 @@ public class ListenableConcurrentIntegerValue extends ListenableConcurrentValue<
             return value;
         }
         finally {
-            lock.unlockWrite(stamp);
+            lock.writeLock().unlock();
         }
     }
 
 
     public Integer getAndIncrement() {
-        long stamp = lock.writeLock();
+        lock.writeLock().lock();
         try {
             Integer previousValue = value;
             this.value = previousValue + 1;
@@ -53,12 +53,12 @@ public class ListenableConcurrentIntegerValue extends ListenableConcurrentValue<
             return previousValue;
         }
         finally {
-            lock.unlockWrite(stamp);
+            lock.writeLock().unlock();
         }
     }
 
     public Integer decrementAndGet() {
-        long stamp = lock.writeLock();
+        lock.writeLock().lock();
         try {
             Integer previousValue = value;
             this.value = previousValue - 1;
@@ -66,13 +66,13 @@ public class ListenableConcurrentIntegerValue extends ListenableConcurrentValue<
             return value;
         }
         finally {
-            lock.unlockWrite(stamp);
+            lock.writeLock().unlock();
         }
     }
 
 
     public Integer getAndDecrement() {
-        long stamp = lock.writeLock();
+        lock.writeLock().lock();
         try {
             Integer previousValue = value;
             this.value = previousValue - 1;
@@ -80,12 +80,12 @@ public class ListenableConcurrentIntegerValue extends ListenableConcurrentValue<
             return previousValue;
         }
         finally {
-            lock.unlockWrite(stamp);
+            lock.writeLock().unlock();
         }
     }
 
     public Integer addAndGet(int delta) {
-        long stamp = lock.writeLock();
+        lock.writeLock().lock();
         try {
             Integer previousValue = value;
             this.value = previousValue + delta;
@@ -93,12 +93,12 @@ public class ListenableConcurrentIntegerValue extends ListenableConcurrentValue<
             return value;
         }
         finally {
-            lock.unlockWrite(stamp);
+            lock.writeLock().unlock();
         }
     }
 
     public Integer getAndAdd(int delta) {
-        long stamp = lock.writeLock();
+        lock.writeLock().lock();
         try {
             Integer previousValue = value;
             this.value = previousValue + delta;
@@ -106,7 +106,7 @@ public class ListenableConcurrentIntegerValue extends ListenableConcurrentValue<
             return value;
         }
         finally {
-            lock.unlockWrite(stamp);
+            lock.writeLock().unlock();
         }
     }
 }
